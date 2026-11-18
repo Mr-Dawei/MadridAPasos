@@ -1,0 +1,20 @@
+# Claves y secretos
+config.py
+.env
+
+# Entornos virtuales
+venv/
+env/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
