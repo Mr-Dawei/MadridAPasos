@@ -1,0 +1,9 @@
+streamlit>=1.30
+pandas
+numpy
+folium
+requests
+pyproj
+streamlit-folium
+streamlit-js-eval
+fpdf2
