@@ -108,22 +108,51 @@ def en_horario(apertura, cierre, ahora, margen_min=0):
 
 
 def calcular_abierto_ahora(df, ahora):
-    """Añade columna 'abierto_ahora' de forma rápida (sin reparsear feeds)."""
+    """Añade columna 'abierto_ahora'. Robusta ante tipos inesperados."""
     df = df.copy()
     ahora_min = ahora.hour * 60 + ahora.minute
 
-    def _fila(r):
-        ap, ci = r["apertura"], r["cierre"]
-        m = r.get("margen_min", 0) or 0
-        if ap is None or ci is None:
-            return True
+    def _es_valido(x):
+        if x is None:
+            return False
+        try:
+            if pd.isna(x):
+                return False
+        except (ValueError, TypeError):
+            return False
+        return True
+
+    resultados = []
+    for _, r in df.iterrows():
+        ap = r["apertura"]
+        ci = r["cierre"]
+        m = r.get("margen_min", 0)
+
+        if not _es_valido(ap) or not _es_valido(ci):
+            resultados.append(True)
+            continue
+
+        # Si por lo que sea llegasen como tuplas/listas, tomamos el primer elemento
+        if isinstance(ap, (tuple, list)):
+            ap = ap[0] if ap else None
+        if isinstance(ci, (tuple, list)):
+            ci = ci[0] if ci else None
+
+        if not hasattr(ap, "hour") or not hasattr(ci, "hour"):
+            resultados.append(True)
+            continue
+
+        try:
+            m_int = int(m) if (m is not None and not pd.isna(m)) else 0
+        except (ValueError, TypeError):
+            m_int = 0
+
         ap_min = ap.hour * 60 + ap.minute
-        ci_min = ci.hour * 60 + ci.minute - int(m)
-        return ap_min <= ahora_min <= ci_min
+        ci_min = ci.hour * 60 + ci.minute - m_int
+        resultados.append(ap_min <= ahora_min <= ci_min)
 
-    df["abierto_ahora"] = df.apply(_fila, axis=1)
+    df["abierto_ahora"] = resultados
     return df
-
 
 # ---------------- ELEVACIÓN ----------------
 OPEN_ELEVATION_URL = "https://api.open-elevation.com/api/v1/lookup"

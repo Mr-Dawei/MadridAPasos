@@ -24,14 +24,20 @@ NS = {
 }
 
 # Configuración de feeds Atom → categoría principal
+CARPETA_DATOS     = "data"
+RUTA_FUENTES_JSON = f"{CARPETA_DATOS}/fuentes.json"
+RUTA_ARBOLADO_CSV = f"{CARPETA_DATOS}/arbolado.csv"
+RUTA_CLIMA_API    = f"{CARPETA_DATOS}/clima.api"
+
 FEEDS_ATOM = {
-    "parques":            {"ruta": "parques.geo",            "tiene_techo": False, "icono": ("green", "tree")},
-    "monumentos":         {"ruta": "monumentos.geo",         "tiene_techo": False, "icono": ("darkred", "landmark")},
-    "museos":             {"ruta": "museos.geo",             "tiene_techo": True,  "icono": ("cadetblue", "university")},
-    "bibliotecas":        {"ruta": "bibliotecas.geo",        "tiene_techo": True,  "icono": ("purple", "book")},
-    "centros_culturales": {"ruta": "centros_culturales.geo", "tiene_techo": True,  "icono": ("darkblue", "theater-masks")},
-    "centros_mayores":    {"ruta": "centros_mayores.geo",    "tiene_techo": True,  "icono": ("orange", "users")},
+    "parques":            {"ruta": f"{CARPETA_DATOS}/parques.geo",            "tiene_techo": False, "icono": ("green", "tree")},
+    "monumentos":         {"ruta": f"{CARPETA_DATOS}/monumentos.geo",         "tiene_techo": False, "icono": ("darkred", "landmark")},
+    "museos":             {"ruta": f"{CARPETA_DATOS}/museos.geo",             "tiene_techo": True,  "icono": ("cadetblue", "university")},
+    "bibliotecas":        {"ruta": f"{CARPETA_DATOS}/bibliotecas.geo",        "tiene_techo": True,  "icono": ("purple", "book")},
+    "centros_culturales": {"ruta": f"{CARPETA_DATOS}/centros_culturales.geo", "tiene_techo": True,  "icono": ("darkblue", "theater-masks")},
+    "centros_mayores":    {"ruta": f"{CARPETA_DATOS}/centros_mayores.geo",    "tiene_techo": True,  "icono": ("orange", "users")},
 }
+
 
 # Feeds de emergencias (opcionales: si no existen, no rompe)
 FEEDS_EMERGENCIAS = {
@@ -40,9 +46,6 @@ FEEDS_EMERGENCIAS = {
     "comisarias":      {"ruta": "comisarias.geo",      "icono": ("gray", "shield-alt")},
 }
 
-RUTA_FUENTES_JSON = "fuentes.json"
-RUTA_ARBOLADO_CSV = "arbolado.csv"
-RUTA_CLIMA_API    = "clima.api"
 
 
 # ---------------- FEED ATOM GENÉRICO ----------------
