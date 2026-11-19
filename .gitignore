@@ -1,6 +1,9 @@
 # Claves y secretos
-config.py
+# config.py     ← comentada, ahora sí se sube
 .env
+venv/
+__pycache__/
+*.pyc
 
 # Entornos virtuales
 venv/
