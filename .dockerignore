@@ -1,0 +1,12 @@
+.git
+.gitignore
+.venv
+venv
+__pycache__
+*.pyc
+.pytest_cache
+tests
+.streamlit/secrets.toml
+.env
+# el CSV de 75 MB no hace falta en la imagen: la app usa data/arbolado_malla.npz
+data/arbolado.csv
