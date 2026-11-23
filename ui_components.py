@@ -11,8 +11,8 @@ from geo_utils import texto_estado
 from scoring import ETIQUETAS
 
 AZUL, VERDE = "#0A84FF", "#1E9E6A"
-TILES = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-TILES_ATTR = "© OpenStreetMap · © CARTO"
+TILES = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+TILES_ATTR = "© OpenStreetMap contributors"
 LEAFLET_CSS = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
 LEAFLET_JS = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"
 
