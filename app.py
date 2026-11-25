@@ -224,19 +224,31 @@ def columna_resultado(pois, indice):
     if c2.button("★ En favoritos" if favorito else "☆ Guardar en favoritos", key=f"fav_{item['id']}"):
         storage.alternar_favorito(item)
         st.rerun()
-    with st.expander("Compartir · PDF · voz"):
+    with st.popover("📤 Compartir, PDF y voz", use_container_width=True):
         urls = urls_compartir(opcion, origen, destino)
-        st.link_button("🗺 Abrir en Google Maps", urls["google"])
-        st.link_button("🍎 Abrir en Apple Maps", urls["apple"])
-        st.link_button("💬 Compartir por WhatsApp", urls["whatsapp"])
+
+        st.markdown("**Abrir en el móvil**")
+        st.link_button("🗺 Google Maps", urls["google"], use_container_width=True)
+        st.link_button("🍎 Apple Maps", urls["apple"], use_container_width=True)
+        st.link_button("💬 Compartir por WhatsApp", urls["whatsapp"], use_container_width=True)
+
+        st.divider()
+        st.markdown("**Descargar**")
         try:
             clima_txt = S.get("clima_txt", "")
             pdf = generar_pdf(opcion, origen, destino, perfil, R["nombre_origen"], R["nombre_destino"], clima_txt)
-            st.download_button("📄 Descargar PDF para imprimir", pdf, file_name="mi_paseo.pdf", mime="application/pdf", key=f"pdf_{item['id']}")
+            st.download_button(
+                "📄 PDF para imprimir", pdf,
+                file_name="mi_paseo.pdf", mime="application/pdf",
+                key=f"pdf_{item['id']}", use_container_width=True,
+            )
         except ImportError:
-            st.caption("Para exportar a PDF instala fpdf2 (pip install -r requirements.txt).")
-        except Exception as e:                                           # un fallo del PDF no debe tumbar la pantalla
+            st.caption("Instala fpdf2 para exportar a PDF.")
+        except Exception as e:
             st.caption(f"No se pudo generar el PDF ({type(e).__name__}).")
+
+        st.divider()
+        st.markdown("**Escuchar**")
         components.html(html_boton_voz(texto_para_voz(opcion)), height=64)
 
     if S.get("navegando"):

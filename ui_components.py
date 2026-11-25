@@ -11,8 +11,8 @@ from geo_utils import texto_estado
 from scoring import ETIQUETAS
 
 AZUL, VERDE = "#0A84FF", "#1E9E6A"
-TILES = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-TILES_ATTR = "© OpenStreetMap contributors"
+TILES = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"
+TILES_ATTR = "Tiles © Esri"
 LEAFLET_CSS = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
 LEAFLET_JS = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"
 
@@ -35,13 +35,16 @@ def _json_seguro(obj):
 #  CSS
 # =====================================================================
 CSS = f"""
+
 <style>
 :root {{
   --azul:{AZUL}; --verde:{VERDE}; --verde-bg:#E7F6EF; --ambar:#B45309; --ambar-bg:#FFF4E5; --rojo:#D92D20;
   --tinta:#1C1C1E; --tinta2:#6B6F76; --linea:#E6E8EB; --fondo:#F4F5F7; --radio:20px;
   --sombra:0 1px 2px rgba(16,24,40,.05),0 8px 24px rgba(16,24,40,.07);
 }}
-html, body, [class*="st-"], .stApp {{
+
+/* 1. FUENTE GENERAL (Ojo: sin [class*="st-"] para no romper iconos) */
+html, body, .stApp, p, h1, h2, h3, h4, h5, h6, li, label, strong {{
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
 }}
 .stApp {{ background:var(--fondo); color:var(--tinta); }}
@@ -50,7 +53,7 @@ header[data-testid="stHeader"] {{ background:transparent; height:0; }}
 .block-container {{ max-width:1180px; padding-top:1.1rem; padding-bottom:4rem; }}
 h1,h2,h3 {{ letter-spacing:-.02em; }}
 
-/* Botones: grandes, redondeados, ancho completo (también en móvil) */
+/* 2. BOTONES */
 .stButton>button, .stDownloadButton>button, [data-testid^="stBaseLinkButton"], [data-testid="stLinkButton"] a {{
   border-radius:14px !important; min-height:3rem; font-weight:600; width:100%; border:1px solid var(--linea);
   box-shadow:0 1px 2px rgba(16,24,40,.04);
@@ -58,17 +61,147 @@ h1,h2,h3 {{ letter-spacing:-.02em; }}
 .stButton>button[kind="primary"] {{ background:var(--azul); border-color:var(--azul); color:#fff; }}
 .stButton>button[kind="primary"]:hover {{ background:#0066CC; border-color:#0066CC; }}
 button[data-baseweb="tab"] {{ font-weight:600; font-size:1rem; }}
-[data-testid="stExpander"] {{ background:#fff; border-radius:var(--radio); border:1px solid var(--linea); box-shadow:var(--sombra); }}
-[data-testid="stExpander"] summary {{ font-weight:700; font-size:1.05rem; }}
 
-/* Cabecera */
+/* ======================================================== */
+/* 3. EXPANDER (LA SOLUCIÓN) */
+/* ======================================================== */
+[data-testid="stExpander"] {{
+  background: #fff; border-radius: var(--radio); border: 1px solid var(--linea);
+  box-shadow: var(--sombra); overflow: hidden; margin-bottom: .8rem;
+  transition: box-shadow .2s ease;
+}}
+[data-testid="stExpander"]:hover {{
+  box-shadow: 0 4px 14px rgba(16,24,40,.10);
+}}
+
+/* Cabecera del desplegable */
+[data-testid="stExpander"] details > summary {{
+  padding: .95rem 1.2rem !important;
+  background: #F7F8FA;
+  font-weight: 700 !important; 
+  font-size: 1.05rem !important;
+  transition: background .15s ease;
+  list-style: none !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important; 
+}}
+[data-testid="stExpander"] details > summary:hover {{
+  background: #EEF1F4;
+}}
+[data-testid="stExpander"] details[open] > summary {{
+  background: #FFFFFF;
+  border-bottom: 1px solid var(--linea);
+}}
+[data-testid="stExpander"] details > div {{
+  padding: .9rem .5rem !important;
+}}
+
+/* EL TRUCO: Ocultar a la fuerza cualquier icono o texto raro (svg, span, etc) dentro del summary */
+[data-testid="stExpander"] details > summary svg,
+[data-testid="stExpander"] details > summary [data-testid="stIconMaterial"],
+[data-testid="stExpander"] details > summary [data-testid="stExpanderToggleIcon"] {{
+  display: none !important;
+}}
+
+/* Dibujar nuestra propia flecha (Chevron) a la derecha del todo */
+[data-testid="stExpander"] details > summary::after {{
+  content: "" !important;
+  display: block !important;
+  width: 8px !important;
+  height: 8px !important;
+  border-right: 2px solid var(--tinta2) !important;
+  border-bottom: 2px solid var(--tinta2) !important;
+  transform: rotate(45deg) !important;
+  transition: transform 0.2s ease !important;
+  margin-left: 10px !important;
+  position: relative;
+  top: -2px;
+}}
+[data-testid="stExpander"] details[open] > summary::after {{
+  transform: rotate(-135deg) !important;
+  top: 2px;
+}}
+
+/* ======================================================== */
+/* 4. POPOVER (Menú compartir) */
+/* ======================================================== */
+[data-testid="stPopover"] > button {{
+  border-radius:14px !important;
+  min-height:3rem;
+  font-weight:600;
+  background:#fff !important;
+  color:var(--tinta) !important;
+  border:1px solid var(--linea) !important;
+  box-shadow:0 1px 2px rgba(16,24,40,.04) !important;
+  transition:all .15s ease;
+  width:100%;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 8px !important;
+}}
+[data-testid="stPopover"] > button:hover {{
+  background:#F5F5F7 !important;
+  border-color:var(--azul) !important;
+  color:var(--azul) !important;
+}}
+
+/* Ocultar icono nativo del popover */
+[data-testid="stPopover"] > button [data-testid="stIconMaterial"],
+[data-testid="stPopover"] > button svg {{
+    display: none !important;
+}}
+
+/* Nuestra flecha para el popover */
+[data-testid="stPopover"] > button::after {{
+  content: "" !important;
+  display: block !important;
+  width: 8px !important;
+  height: 8px !important;
+  border-right: 2px solid currentColor !important;
+  border-bottom: 2px solid currentColor !important;
+  transform: rotate(45deg) !important;
+  margin-left: 5px !important;
+  position: relative;
+  top: -2px;
+}}
+
+[data-testid="stPopoverBody"] {{
+  border-radius:16px !important;
+  box-shadow:0 8px 28px rgba(16,24,40,.14) !important;
+  padding:16px !important;
+  border:1px solid var(--linea) !important;
+  background:#fff !important;
+}}
+[data-testid="stPopoverBody"] .stButton > button,
+[data-testid="stPopoverBody"] .stLinkButton a,
+[data-testid="stPopoverBody"] .stDownloadButton > button {{
+  width:100% !important;
+  border-radius:12px !important;
+  margin-bottom:.4rem;
+}}
+[data-testid="stPopoverBody"] hr {{
+  margin:.6rem 0 !important;
+  border-color:var(--linea);
+}}
+[data-testid="stPopoverBody"] strong {{
+  font-size:.95rem;
+  color:var(--tinta2);
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  display:block;
+  margin-bottom:0.5rem;
+}}
+
+/* 5. TARJETAS Y OTROS ESTILOS */
 .top {{ display:flex; justify-content:space-between; align-items:center; gap:.75rem; margin:.2rem 0 .9rem; flex-wrap:wrap; }}
 .brand {{ font-size:1.7rem; font-weight:800; letter-spacing:-.03em; }}
 .brand span {{ color:var(--verde); }}
 .tag {{ color:var(--tinta2); font-size:.95rem; margin-top:-.15rem; }}
 .wx {{ background:#fff; border:1px solid var(--linea); border-radius:999px; padding:.45rem .95rem; font-weight:600; box-shadow:var(--sombra); }}
 
-/* Tarjetas */
 .card {{ background:#fff; border-radius:var(--radio); padding:1.1rem 1.2rem; box-shadow:var(--sombra); margin-bottom:.9rem; }}
 .hero .etq {{ color:var(--azul); font-weight:700; font-size:.85rem; text-transform:uppercase; letter-spacing:.06em; }}
 .hero .big {{ font-size:2.6rem; font-weight:800; letter-spacing:-.04em; line-height:1.1; margin:.15rem 0 .5rem; }}
@@ -230,7 +363,11 @@ def construir_mapa(centro, opcion=None, origen=None, destino=None, pois=None, in
     from folium.plugins import Fullscreen, HeatMap
 
     m = folium.Map(location=list(centro), zoom_start=15, tiles=None, control_scale=True, prefer_canvas=True)
-    folium.TileLayer(tiles=TILES, attr=TILES_ATTR, name="Mapa", subdomains="abcd", max_zoom=19).add_to(m)
+    folium.TileLayer(
+    tiles=TILES, attr=TILES_ATTR, name="Mapa",
+    max_native_zoom=19,
+    max_zoom=19,
+).add_to(m)
     Fullscreen().add_to(m)
     capas = False
 
